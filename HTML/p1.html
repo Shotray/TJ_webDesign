@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>普通的代码</title>
+</head>
+
+<body style="background-image: url(./../pic/001.jpg);background-size: 100% ">
+
+<h1 align="center" style="font-family:楷体;size:20">生活就是爆肝</h1>
+<h2 align="left" style="font-family:黑体">项目功能分析</h2>
+<p>在平时的运算过程中我们经常会遇到过于复杂的算术表达式，但人计算会出差错，但电脑在正确的逻辑下不会出差错，
+所以本项目实现了输入表达式输出计算结果的目标，实现了简单计算器的功能。
+读入从键盘上输入的中缀算术表达式，包括括号，计算出表达式的值。
+程序对所有输入的表达式作简单的判断，如果表达式有错误，抛出“invalid argument: Wrong input”的错误。
+</p>
+<p>程序可以计算=、()、+、-、*、/、%、^以及单目运算符+和-。</p>
+
+<h2 align="left" style="font-family:黑体">符号表示</h2>
+<table border="1">
+<tr>
+<th>符号</th>
+<th>含义</th>
+</tr>
+<tr>
+<th>=</th>
+<th>等于</th>
+</tr>
+<tr>
+<th>()</th>
+<th>括号</th>
+</tr>
+<tr>
+<th>+</th>
+<th>加</th>
+</tr>
+<tr>
+<th>-</th>
+<th>减</th>
+</tr>
+<tr>
+<th>*</th>
+<th>乘</th>
+</tr>
+<tr>
+<th>/</th>
+<th>除</th>
+</tr>
+<tr>
+<th>%</th>
+<th>取余</th>
+</tr>
+<tr>
+<th>^</th>
+<th>乘方</th>
+</tr>
+</table>
+</br>
+
+<h2 align="left" style="font-family:黑体">代码实现</h2>
+<div style="background-color:rgb(233, 134, 4)">
+<pre style="color:white">
+    #include&ltiostream&gt
+    #include&ltstring&gt
+    #include&ltvector&gt
+    #include&ltstack&gt
+    #include&ltcmath&gt
+    using namespace std;
+    
+    int priority(char symbol) {
+      switch (symbol) {
+      case '=':
+        return 0;
+      case '(':
+      case ')':
+        return 1;
+      case '+':
+      case '-':
+        return 2;
+      case '*':
+      case '/':
+        return 3;
+      case '%':
+        return 4;
+      case '^':
+        return 5;
+      }
+      return -1;
+    }
+    
+    bool isOperationalSymbol(char symbol) { 
+      if(priority(symbol)!=-1)
+        return true;
+      return false;
+    }
+    
+    bool isNumber(char num) {
+      if (num &gt= '0' && num &lt= '9')
+        return true;
+      return false;
+    }
+    
+    bool isParenthesisMatching(string s) {
+      int parenthesis = 0;
+      for (int i = 0;i &lt s.size();i++) {
+        if (s[i] == '(')
+          parenthesis++;
+        if (s[i] == ')')
+          parenthesis--;
+      }
+      return parenthesis == 0;
+    }
+    
+    struct element {
+      bool is_num=false;
+      double _num = 0.0;
+      char operation = ',';
+    };
+    
+    vector&ltelement&gt suffix(string s) {
+      vector&ltelement&gt suf;
+      stack&ltelement&gt op;
+      for (int i = 0;i &lt s.size();i++) {
+        double num;
+        if (isNumber(s[i])) {
+          int j = i + 1;
+          while (isNumber(s[j]) || s[j] == '.') {
+            j++;
+          }
+          string snum = s.substr(i, j);
+          num = stod(snum);
+          if (s[0] == '-' && i == 1) {
+            num = -num;
+            op.pop();
+          }
+          if (s[0] == '+' && i == 1){
+            op.pop();
+          }
+          i = j-1;
+          element temp;
+          temp.is_num = true;
+          temp._num = num;
+          suf.push_back(temp);
+        }
+        else if (isOperationalSymbol(s[i])) {
+          if (op.empty()) {
+            element temp;
+            temp.is_num = false;
+            temp.operation = s[i];
+            op.push(temp);
+          }
+          else if (s[i] == ')') {
+            while (op.top().operation != '(') {
+              suf.push_back(op.top());
+              op.pop();
+            }
+            op.pop();
+          }
+          else if (s[i] == '(') {
+            element temp;
+            temp.is_num = false;
+            temp.operation = '(';
+            op.push(temp);
+            if (s[i + 1] == '-'||s[i+1]=='+') {
+              temp.is_num = true;
+              temp._num = 0;
+              suf.push_back(temp);
+            }
+          }
+          else {
+            while (!op.empty()&&priority(op.top().operation) &gt= priority(s[i])) {
+              suf.push_back(op.top());
+              op.pop();
+            }
+            element temp;
+            temp.is_num = false;
+            temp.operation = s[i];
+            op.push(temp);
+          }
+        }
+        else {
+          throw invalid_argument("Invalid input.");
+        }
+      }
+      while (!op.empty()) {
+        suf.push_back(op.top());
+        op.pop();
+      }
+      return suf;
+    }
+    
+    void print(vector&ltelement&gt test) {
+      for (int i = 0;i &lt test.size();i++) {
+        if (test[i].is_num) cout &lt&lt test[i]._num &lt&lt ' ';
+        else cout &lt&lt test[i].operation &lt&lt ' ';
+      }
+      return;
+    }
+    
+    int pow(int left, int right) {
+      int ans = 1;
+      while (right) {
+        if (right & 1)
+          ans *= left;
+        left *= left;
+        right &gt&gt= 1;
+      }
+      return ans;
+    }
+    
+    double run(double left, double right, char op) {
+      if (op == '-') return left - right;
+      if (op == '+') return left + right;
+      if (op == '*')return left * right;
+      if (op == '/') {
+        if (fabs(right - 0.0) &lt 1e-8) {
+          throw invalid_argument("Divided by 0.");
+          return 0;
+        }
+        else return left / right; 
+      }
+      if (op == '%')return (int)left % (int)right;
+      if (op == '^')return pow((int)left, (int)right);
+    }
+    
+    double calculate(string s) {
+      if (!isParenthesisMatching(s))
+        throw invalid_argument("Bracket mismatch.");
+    
+      if (s[s.size() - 1] == '=') s.pop_back();
+      else
+        throw invalid_argument("There is no '=' in the end of expression.");
+    
+      vector&ltelement&gt suf = suffix(s);
+      stack&ltdouble&gt result;
+      for (int i = 0;i &lt suf.size();i++) {
+        if (suf[i].is_num)
+          result.push(suf[i]._num);
+        else {
+          double left, right;
+          right = result.top();
+          result.pop();
+          left = result.top();
+          result.pop();
+          double res=run(left, right, suf[i].operation);
+          result.push(res);
+        }
+      }
+    
+      return result.top();
+    }
+    
+    bool check(string s){
+      for(int i=0;i&lts.size();i++){
+        if(s[i]&gt='0'&&s[i]&lt='9')
+          continue;
+        switch(s[i]){
+          case '%':
+          case '^':
+          case '+':
+          case '-':
+          case '*':
+          case '/':
+          case '(':
+          case ')':
+          case '=':
+          case '.':
+            continue;
+          default:return false;
+        }
+      }
+      return true;
+    }
+    
+    void solve() {
+      string s;
+      while(true){
+        cout &lt&lt "Please input the arithemetic expression."&lt&ltendl;
+        cin &gt&gt s;
+        if(!check(s)) 
+          throw invalid_argument("Wrong input!");
+        cout &lt&lt "The answer is:";
+        cout &lt&lt calculate(s) &lt&lt endl;
+        cout&lt&lt"continue?(y,n):";
+        char judge;
+        cin&gt&gt judge;
+        if(judge=='n') return;
+      }
+      return;
+    }
+    
+    int main(void) {
+      solve();
+      system("pause");
+      return 0;
+    }
+</pre>
+</div>
+
+<h2>
+<a href="https://cn.bing.com/">Any Questions?</a>
+</h2>
+
+</body>
+</html>
