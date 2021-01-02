@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML+JS</title>
+</head>
+<body>
+    <div style="text-align: center">
+        <h1 style="font-size: 18;font-weight:bold">
+            反转字符串
+        </h1>
+        <textarea rows="3" cols="40" id="text" onkeyup="Reverse()"></textarea>
+        <div>
+            反转后字符串为：<span id="after"></span>
+        </div>
+    </div>
+    <script>
+        function Reverse(){
+        var text=document.getElementById("text").value;
+        var ans="";
+        for(var i=text.length-1;i>=0;i--){
+            ans+=text[i];
+        }
+        document.getElementById("after").innerHTML=ans;
+        }
+    </script>
+</body>
+</html>

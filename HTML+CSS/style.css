@@ -1,0 +1,37 @@
+#header{
+    background-color:black ;
+    color:white;
+    text-align: center;
+    grid-row: 1/2;
+    grid-column: 1/3;
+    padding:5px;   
+}
+
+#body{
+    display: grid;
+    grid-template-columns: 10% 90%;
+}
+
+#left{
+    background-color: #eeeeee;
+    line-height:55px;
+    grid-column: 1/2;
+    height:130px;
+    padding:10px;
+}
+
+#paragraph{
+    color:black;
+    padding:5px;
+    grid-column: 2/3;
+    float:left;
+    font-size: 1;
+}
+
+#foot{
+    background-color: black;
+    grid-column: 1/3;
+    text-align: center;
+    color:white;
+    padding:5px;
+}
